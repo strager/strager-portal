@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "strager-portal",
+  "version": "1.0.0",
+  "description": "",
+  "web_accessible_resources": [
+    "index.html",
+    "index.mjs",
+    "thirdparty/fetch-event-stream.mjs"
+  ],
+  "chrome_settings_overrides": {
+    "search_provider": {
+      "name": "strager portal",
+      "search_url": "http://localhost:12323/index.html?q={searchTerms}",
+      "favicon_url": "",
+      "keyword": "!strager",
+      "is_default": true,
+      "encoding": "UTF-8"
+    }
+  }
+}
