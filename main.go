@@ -3,16 +3,20 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	launchd "github.com/bored-engineer/go-launchd"
 	sse "github.com/tmaxmax/go-sse"
 	"html"
 	"io"
 	"iter"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+	"syscall"
 )
 
 // TODO(strager): Move this out of the repo.
@@ -20,8 +24,26 @@ var groqAPIKey string = "gsk_rEOCry3mrRA8hydi0eNRWGdyb3FYgFRDn51afl9tG9rgwMqWbaW
 
 func main() {
 	var err error
+	slog.Info("starting service")
 	http.HandleFunc("/", handleRequest)
-	err = http.ListenAndServe(":12323", nil)
+
+	var serverSocket net.Listener
+	serverSocket, err = launchd.Activate("Listeners")
+	if err != nil {
+		if errors.Is(err, syscall.ESRCH) {
+			slog.Debug("not launched by launchd")
+			serverSocket = nil
+		} else {
+			slog.Error("failed to get socket from launchd", slog.Any("error", err))
+			os.Exit(1)
+		}
+	}
+
+	if serverSocket == nil {
+		err = http.ListenAndServe("localhost:12323", nil)
+	} else {
+		err = http.Serve(serverSocket, nil)
+	}
 	if err != nil {
 		slog.Error("failed to start HTTP server", slog.Any("error", err))
 		os.Exit(1)

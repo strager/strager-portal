@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>net.strager.portal</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/strager/Projects/strager-portal/strager-portal</string>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/strager/Projects/strager-portal/net.strager.portal.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/strager/Projects/strager-portal/net.strager.portal.log</string>
+
+    <key>UserName</key>
+    <string>strager</string>
+
+    <key>Sockets</key>
+    <dict>
+      <key>Listeners</key>
+      <dict>
+        <key>SockFamily</key>
+        <string>IPv4</string>
+        <key>SockNodeName</key>
+        <string>127.0.0.1</string>
+        <key>SockProtocol</key>
+        <string>TCP</string>
+        <key>SockServiceName</key>
+        <string>12323</string>
+      </dict>
+    </dict>
+  </dict>
+</plist>

@@ -1,2 +1,4 @@
+github.com/bored-engineer/go-launchd v0.0.0-20241220214420-b514778f4f80 h1:O7c0CDkfGaIa7eNktOIBoPpuaq0zazOqB3iTghXIySw=
+github.com/bored-engineer/go-launchd v0.0.0-20241220214420-b514778f4f80/go.mod h1:fuBezjGxBjQFkJeCIN1eTo9c27q2WxjHK7tRlfBkyQk=
 github.com/tmaxmax/go-sse v0.10.0 h1:j9F93WB4Hxt8wUf6oGffMm4dutALvUPoDDxfuDQOSqA=
 github.com/tmaxmax/go-sse v0.10.0/go.mod h1:u/2kZQR1tyngo1lKaNCj1mJmhXGZWS1Zs5yiSOD+Eg8=
