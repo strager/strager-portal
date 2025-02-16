@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type bangHandler func(response http.ResponseWriter, request *http.Request, query string)
@@ -12,12 +13,28 @@ var bangHandlers map[string]bangHandler = map[string]bangHandler{
 		http.Redirect(response, request, "https://kagi.com/search?q="+url.QueryEscape(query), http.StatusFound)
 	},
 	"!go": func(response http.ResponseWriter, request *http.Request, query string) {
+		// Example: !go http
 		var isGoStandardPackage bool
 		_, isGoStandardPackage = goStandardPackages[query]
 		if isGoStandardPackage {
 			http.Redirect(response, request, "https://pkg.go.dev/"+url.QueryEscape(query), http.StatusFound)
 			return
 		}
+
+		// Example: !go http.Client
+		var packageName string
+		var symbolName string
+		var isPackageDotSymbol bool
+		packageName, symbolName, isPackageDotSymbol = strings.Cut(query, ".")
+		if isPackageDotSymbol {
+			var isGoStandardPackage bool
+			_, isGoStandardPackage = goStandardPackages[packageName]
+			if isGoStandardPackage {
+				http.Redirect(response, request, "https://pkg.go.dev/"+url.QueryEscape(packageName)+"#"+url.QueryEscape(symbolName), http.StatusFound)
+				return
+			}
+		}
+
 		http.Redirect(response, request, "https://pkg.go.dev/search?utm_source=godoc&q="+url.QueryEscape(query), http.StatusFound)
 	},
 }
