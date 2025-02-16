@@ -13,7 +13,6 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"syscall"
@@ -54,17 +53,28 @@ func handleRequest(response http.ResponseWriter, request *http.Request) {
 	var query string = request.URL.Query().Get("q")
 	var tokens []string = strings.Fields(query)
 
-	var bangToken string = ""
+	var bangTokenIndex int = -1
 	if len(tokens) > 0 {
 		if strings.HasPrefix(tokens[0], "!") {
-			bangToken = tokens[0]
+			bangTokenIndex = 0
 		} else if strings.HasPrefix(tokens[len(tokens)-1], "!") {
-			bangToken = tokens[len(tokens)-1]
+			bangTokenIndex = len(tokens) - 1
 		}
 	}
 
-	if bangToken != "" {
-		redirectToKagi(response, request, query)
+	if bangTokenIndex != -1 {
+		var queryWithoutBang string = ""
+		var i int
+		for i = range tokens {
+			if i == bangTokenIndex {
+				continue
+			}
+			if queryWithoutBang != "" {
+				queryWithoutBang += " "
+			}
+			queryWithoutBang += tokens[i]
+		}
+		redirectToBang(tokens[bangTokenIndex], response, request, queryWithoutBang)
 		return
 	}
 
@@ -73,11 +83,22 @@ func handleRequest(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	redirectToKagi(response, request, query)
+	redirectToBang("", response, request, query)
 }
 
-func redirectToKagi(response http.ResponseWriter, request *http.Request, query string) {
-	http.Redirect(response, request, "https://kagi.com/search?q="+url.QueryEscape(query), http.StatusFound)
+// bang is either "!w" (for example) or "!" or no bang.
+func redirectToBang(bang string, response http.ResponseWriter, request *http.Request, queryWithoutBang string) {
+	var handler bangHandler = bangHandlers[bang]
+	if handler == nil {
+		handler = bangHandlers[""]
+		if handler == nil {
+			response.WriteHeader(http.StatusNotFound)
+			_, _ = io.WriteString(response, "default handler not found")
+			return
+		}
+		handler(response, request, bang+" "+queryWithoutBang)
+	}
+	handler(response, request, queryWithoutBang)
 }
 
 func showAIConversation(response http.ResponseWriter, query string) {
