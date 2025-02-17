@@ -5,8 +5,8 @@
   "description": "",
   "chrome_settings_overrides": {
     "search_provider": {
-      "name": "strager portal",
-      "search_url": "http://localhost:12323/?q={searchTerms}",
+      "name": "strager portal 2",
+      "search_url": "http://localhost:69/?q={searchTerms}",
       "favicon_url": "",
       "keyword": "!strager",
       "is_default": true,

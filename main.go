@@ -39,7 +39,7 @@ func main() {
 	}
 
 	if serverSocket == nil {
-		err = http.ListenAndServe("localhost:12323", nil)
+		err = http.ListenAndServe("localhost:69", nil)
 	} else {
 		err = http.Serve(serverSocket, nil)
 	}
