@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	launchd "github.com/bored-engineer/go-launchd"
 	sse "github.com/tmaxmax/go-sse"
 	"html"
@@ -14,15 +15,38 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 )
 
-// TODO(strager): Move this out of the repo.
-var groqAPIKey string = "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"
+type appConfig struct {
+	GroqAPIKey string `toml:"groq_api_key"`
+}
+
+var config appConfig = appConfig{}
 
 func main() {
 	var err error
+
+	var exePath string
+	exePath, err = os.Executable()
+	if err != nil {
+		slog.Error("failed to get path to executable", slog.Any("err", err))
+		os.Exit(1)
+	}
+	var configPath string = filepath.Join(filepath.Dir(exePath), "config.toml")
+
+	_, err = toml.DecodeFile(configPath, &config)
+	if err != nil {
+		slog.Error("failed to load config file", slog.Any("err", err), slog.Any("configPath", configPath))
+		os.Exit(1)
+	}
+	if config.GroqAPIKey == "" {
+		slog.Error("missing groq_api_key in config file", slog.Any("configPath", configPath))
+		os.Exit(1)
+	}
+
 	slog.Info("starting service")
 	http.HandleFunc("/", handleRequest)
 
@@ -262,7 +286,7 @@ func requestAI(conversation []string) (*http.Response, error) {
 		return nil, err
 	}
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("Authorization", "Bearer "+groqAPIKey)
+	request.Header.Set("Authorization", "Bearer "+config.GroqAPIKey)
 
 	var response *http.Response
 	var client *http.Client = &http.Client{}
